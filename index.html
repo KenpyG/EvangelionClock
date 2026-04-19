@@ -273,6 +273,19 @@
           return;
         }
         requestAnimationFrame(tick);
+        // (FIX FOR MOBILE) When the user switches back to this tab/app, ensure audio plays smoothly.
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            const alarm = document.getElementById("alarmSound");
+            // If the alarm has been triggered ('true') and is supposed to be playing (!paused),
+            // we re-trigger the play state.
+            if (alarm && alarm.dataset.played === "true" && !alarm.paused) {
+              // This ensures playback continues or restarts properly after a background pause.
+              // alarm.currentTime = 0; // Optional: Force it to start from the beginning.
+              alarm.play().catch(e => console.log('Visibility change audio playback failed.'));
+            }
+          }
+        });
       }
 
       // Show zeroed out clock while selecting
