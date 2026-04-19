@@ -166,10 +166,10 @@
   </div>
 
   <div class="danger-overlay"></div>
-  <audio id="alarmSound" src="EvangelionClock/Sound/alarm.mp3" preload="auto" loop></audio>
+  <audio id="alarmSound" src="Sound/alarm.mp3" preload="auto" loop></audio>
 
   <div class="viewport-lock">
-    <img id="bgImage" class="bg-image" src="EvaClockBackground.jpg" alt="" />
+    <img id="bgImage" class="bg-image" src="Background/EvaClockBackground.jpg" alt="" />
     <div class="hud">
       <div class="grid" id="grid" role="timer"></div>
     </div>
@@ -254,11 +254,11 @@
         if (diff <= 60000) { 
           timeEl.style.color = "#b50000";
           if (bg && !bg.src.includes("EvaClockBackground_red.jpg")) {
-            bg.src = "EvaClockBackground_red.jpg";
+            bg.src = "Background/EvaClockBackground_red.jpg";
           }
         } else {
           timeEl.style.color = "#ef9409";
-          if (bg) bg.src = "EvaClockBackground.jpg";
+          if (bg) bg.src = "Background/EvaClockBackground.jpg";
         }
 
         const mm = Math.floor(diff / 60000);
