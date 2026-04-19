@@ -1,305 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Countdown</title>
-  <style>
-    @font-face {
-      font-family: "Digital-7";
-      src: url("Fonts/digital-7.ttf") format("truetype");
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown</title>
+  <style>
+    @font-face {
+      font-family: "Digital-7";
+      src: url("digital-7.ttf") format("truetype"); /* Corrected path to root */
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
 
-    :root {
-      --lcd-orange: #ef9409;
-      --lcd-red: #b50000;
-      --hud-top: 61%; 
-      --hud-left: 51.5%;
-    }
+    :root {
+      --lcd-orange: #ef9409;
+      --lcd-red: #b50000;
+      --hud-top: 61%; 
+      --hud-left: 51.5%;
+    }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; }
 
-    html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-    /* Start Overlay with 4 Options */
-    #start-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: var(--lcd-orange);
-      font-family: "Digital-7", sans-serif;
-      transition: opacity 0.5s ease;
-    }
+    /* Start Overlay with 4 Options */
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--lcd-orange);
+      font-family: "Digital-7", sans-serif;
+      transition: opacity 0.5s ease;
+    }
 
-    .overlay-title {
-      font-size: 3rem;
-      margin-bottom: 2rem;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-    }
+    .overlay-title {
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
 
-    .start-options {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .start-options {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-    .time-btn {
-      background: transparent;
-      border: 2px solid var(--lcd-orange);
-      color: var(--lcd-orange);
-      font-family: "Digital-7", sans-serif;
-      font-size: 2.5rem;
-      padding: 10px 30px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-    }
+    .time-btn {
+      background: transparent;
+      border: 2px solid var(--lcd-orange);
+      color: var(--lcd-orange);
+      font-family: "Digital-7", sans-serif;
+      font-size: 2.5rem;
+      padding: 10px 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
 
-    .time-btn:hover {
-      background: var(--lcd-orange);
-      color: #000;
-      box-shadow: 0 0 20px var(--lcd-orange);
-    }
+    .time-btn:hover {
+      background: var(--lcd-orange);
+      color: #000;
+      box-shadow: 0 0 20px var(--lcd-orange);
+    }
 
-    .viewport-lock {
-      position: relative;
-      aspect-ratio: 1920 / 1080; 
-      width: 100vw;
-      height: auto;
-      container-type: size;
-    }
+    .viewport-lock {
+      position: relative;
+      aspect-ratio: 1920 / 1080; 
+      width: 100vw;
+      height: auto;
+      container-type: size;
+    }
 
-    @media (min-aspect-ratio: 1920/1080) {
-      .viewport-lock {
-        width: auto;
-        height: 100vh;
-      }
-    }
+    @media (min-aspect-ratio: 1920/1080) {
+      .viewport-lock {
+        width: auto;
+        height: 100vh;
+      }
+    }
 
-    .bg-image {
-      width: 100%; height: 100%;
-      display: block;
-    }
+    .bg-image {
+      width: 100%; height: 100%;
+      display: block;
+    }
 
-    .hud {
-      position: absolute;
-      top: var(--hud-top);
-      left: var(--hud-left);
-      width: 100%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
+    .hud {
+      position: absolute;
+      top: var(--hud-top);
+      left: var(--hud-left);
+      width: 100%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
 
-    .unit .num {
-      font-family: "Digital-7", monospace;
-      font-size: 18.2cqw; 
-      line-height: 1;
-      color: var(--lcd-orange);
-      font-variant-numeric: tabular-nums;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-    }
+    .unit .num {
+      font-family: "Digital-7", monospace;
+      font-size: 18.2cqw; 
+      line-height: 1;
+      color: var(--lcd-orange);
+      font-variant-numeric: tabular-nums;
+      display: flex;
+       justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
 
-    .slot {
-      display: inline-block;
-      width: 0.45em; 
-      text-align: center;
-    }
+    .slot {
+      display: inline-block;
+      width: 0.45em; 
+      text-align: center;
+    }
 
-    .slot.sep { 
-      width: 0.12em;
-      margin-left: -0.02em;
-    }
-    
-    .slot.last-colon { 
-      font-size: 0.8em; 
-      width: 0.15em; 
-      transform: translateY(0.09em);
-    }
+    .slot.sep { 
+      width: 0.12em;
+      margin-left: -0.02em;
+    }
+    
+    .slot.last-colon { 
+      font-size: 0.8em; 
+  0     width: 0.15em; 
+      transform: translateY(0.09em);
+    }
 
-    .slot.ms { 
-      font-size: 0.8em; 
-      width: 0.45em; 
-      transform: translateY(0.09em);
-    }
-    
-    .danger-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      pointer-events: none;
-      opacity: 0;
-      z-index: 2;
-    }
-  </style>
+    .slot.ms { 
+      font-size: 0.8em; 
+      width: 0.45em; 
+      transform: translateY(0.09em);
+    }
+    
+    .danger-overlay {
+      position: fixed;
+      inset: 0;
+  0     display: none;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 2;
+    }
+  </style>
 </head>
 <body>
 
-  <div id="start-overlay">
-    <div class="overlay-title">Select Duration</div>
-    <div class="start-options">
-      <button class="time-btn" data-mins="20">20 MIN</button>
-      <button class="time-btn" data-mins="10">10 MIN</button>
-      <button class="time-btn" data-mins="5">5 MIN</button>
-      <button class="time-btn" data-mins="1">1 MIN</button>
-    </div>
-  </div>
+  <div id="start-overlay">
+    <div class="overlay-title">Select Duration</div>
+    <div class="start-options">
+      <button class="time-btn" data-mins="20">20 MIN</button>
+      <button class="time-btn" data-mins="10">10 MIN</button>
+      <button class="time-btn" data-mins="5">5 MIN</button>
+      <button class="time-btn" data-mins="1">1 MIN</button>
+    </div>
+  </div>
 
-  <div class="danger-overlay"></div>
-  <audio id="alarmSound" src="Sound/alarm.mp3" preload="none" loop></audio>
+  <div class="danger-overlay"></div>
+  <audio id="alarmSound" src="alarm.mp3" preload="auto" loop></audio>   <div class="viewport-lock">
+    <img id="bgImage" class="bg-image" src="EvaClockBackground.jpg" alt="" />     <div class="hud">
+      <div class="grid" id="grid" role="timer"></div>
+    </div>
+  </div>
 
-  <div class="viewport-lock">
-    <img id="bgImage" class="bg-image" src="Background/EvaClockBackground.jpg" alt="" />
-    <div class="hud">
-      <div class="grid" id="grid" role="timer"></div>
-    </div>
-  </div>
+  <script>
+    (function () {
+      let targetMs;
+      let isRunning = false;
+      let durationMs = 0;
 
-  <script>
-    (function () {
-      let targetMs;
-      let isRunning = false;
-      let durationMs = 0;
+      const overlay = document.getElementById("start-overlay");
+      const buttons = document.querySelectorAll(".time-btn");
 
-      const overlay = document.getElementById("start-overlay");
-      const buttons = document.querySelectorAll(".time-btn");
-
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          const mins = parseInt(btn.getAttribute("data-mins"));
-          durationMs = mins * 60 * 1000;
-          
-          overlay.style.opacity = "0";
-          setTimeout(() => overlay.remove(), 500);
-          
-          targetMs = Date.now() + durationMs;
-          isRunning = true;
-          
-          const alarm = document.getElementById("alarmSound");
-          alarm.play();
-          
-          tick();
-        });
-      });
-
-      const grid = document.getElementById("grid");
-      const wrap = document.createElement("div");
-      wrap.className = "unit";
-      const timeEl = document.createElement("div");
-      timeEl.className = "num";
-      wrap.appendChild(timeEl);
-      grid.appendChild(wrap);
-
-      let slotEls = [];
-
-      function rebuildSlots(str) {
-        timeEl.textContent = "";
-        slotEls = [];
-        const lastColonIndex = str.lastIndexOf(":");
-        for (let i = 0; i < str.length; i++) {
-          const slot = document.createElement("span");
-          slot.className = "slot";
-          if (str[i] === ":") slot.classList.add("sep");
-          if (i === lastColonIndex) slot.classList.add("last-colon");
-          if (i > lastColonIndex) slot.classList.add("ms");
-          timeEl.appendChild(slot);
-          slotEls.push(slot);
-        }
-      }
-
-      function setTimeStr(str) {
-        if (slotEls.length !== str.length) rebuildSlots(str);
-        for (let i = 0; i < str.length; i++) {
-          slotEls[i].textContent = str[i];
-        }
-      }
-
-      function tick() {
-        if (!isRunning) return;
-        let diff = targetMs - Date.now();
-        const bg = document.getElementById("bgImage");
-        const alarm = document.getElementById("alarmSound");
-
-        if (diff <= 0) {
-          diff = 0;
-          if (alarm && alarm.paused && !alarm.dataset.played) {
-            alarm.play();
-            alarm.dataset.played = "true";
-          }
-        }
-
-        if (diff <= 60000) { 
-          timeEl.style.color = "#b50000";
-          if (bg && !bg.src.includes("EvaClockBackground_red.jpg")) {
-            bg.src = "Background/EvaClockBackground_red.jpg";
-          }
-        } else {
-          timeEl.style.color = "#ef9409";
-          if (bg) bg.src = "Background/EvaClockBackground.jpg";
-        }
-
-        const mm = Math.floor(diff / 60000);
-        const ss = Math.floor((diff % 60000) / 1000);
-        const ms = Math.floor((diff % 1000) / 10);
-        
-        const str = `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
-        setTimeStr(str);
-
-        if (diff <= 0) {
-          if (!window._flashStarted) {
-            startFlashing();
-            window._flashStarted = true;
-          }
-          return;
-        }
-        requestAnimationFrame(tick);
-        // (FIX FOR MOBILE) When the user switches back to this tab/app, ensure audio plays smoothly.
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') {
-            const alarm = document.getElementById("alarmSound");
-            // If the alarm has been triggered ('true') and is supposed to be playing (!paused),
-            // we re-trigger the play state.
-            if (alarm && alarm.dataset.played === "true" && !alarm.paused) {
-              // This ensures playback continues or restarts properly after a background pause.
-              // alarm.currentTime = 0; // Optional: Force it to start from the beginning.
-              alarm.play().catch(e => console.log('Visibility change audio playback failed.'));
-            }
-          }
-        });
-      }
-
-      // Show zeroed out clock while selecting
-      setTimeStr("00:00:00");
-    })();
-
-    function startFlashing() {
-      const el = document.querySelector(".unit .num");
-      let visible = true;
-      setInterval(() => {
-        visible = !visible;
-        el.style.opacity = visible ? "1" : "0.3";
-      }, 500);
-    }
-  </script>
-</body>
-</html>
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const mins = parseInt(btn.getAttribute("data-mins"));
+          durationMs = mins * 60 * 1000;
+          
+          overlay.style.opacity = "0";
+          setTimeout(() => overlay.remove(), 500);
+          
+          targetMs = Date.now() + durationMs;
+          isRunning = true;
+          
+          const alarm = document.getElementById("alarmSound");
+          // Correct
