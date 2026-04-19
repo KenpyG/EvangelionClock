@@ -166,7 +166,7 @@
   </div>
 
   <div class="danger-overlay"></div>
-  <audio id="alarmSound" src="Sound/alarm.mp3" preload="auto" loop></audio>
+  <audio id="alarmSound" src="Sound/alarm.mp3" preload="none" loop></audio>
 
   <div class="viewport-lock">
     <img id="bgImage" class="bg-image" src="Background/EvaClockBackground.jpg" alt="" />
@@ -196,10 +196,7 @@
           isRunning = true;
           
           const alarm = document.getElementById("alarmSound");
-          alarm.play().then(() => { 
-            alarm.pause(); 
-            alarm.currentTime = 0; 
-          }).catch(e => console.log("Audio primed"));
+          alarm.play();
           
           tick();
         });
