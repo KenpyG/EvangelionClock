@@ -64,7 +64,7 @@
     .time-btn {
       background: transparent;
       border: 2px solid var(--lcd-orange);
-      color: var(--lcd-orange);
+  0       color: var(--lcd-orange);
       font-family: "Digital-7", sans-serif;
       font-size: 2.5rem;
       padding: 10px 30px;
@@ -159,38 +159,4 @@
     <div class="overlay-title">Select Duration</div>
     <div class="start-options">
       <button class="time-btn" data-mins="20">20 MIN</button>
-      <button class="time-btn" data-mins="10">10 MIN</button>
-      <button class="time-btn" data-mins="5">5 MIN</button>
-      <button class="time-btn" data-mins="1">1 MIN</button>
-    </div>
-  </div>
-
-  <div class="danger-overlay"></div>
-  <audio id="alarmSound" src="alarm.mp3" preload="auto" loop></audio>   <div class="viewport-lock">
-    <img id="bgImage" class="bg-image" src="EvaClockBackground.jpg" alt="" />     <div class="hud">
-      <div class="grid" id="grid" role="timer"></div>
-    </div>
-  </div>
-
-  <script>
-    (function () {
-      let targetMs;
-      let isRunning = false;
-      let durationMs = 0;
-
-      const overlay = document.getElementById("start-overlay");
-      const buttons = document.querySelectorAll(".time-btn");
-
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          const mins = parseInt(btn.getAttribute("data-mins"));
-          durationMs = mins * 60 * 1000;
-          
-          overlay.style.opacity = "0";
-          setTimeout(() => overlay.remove(), 500);
-          
-          targetMs = Date.now() + durationMs;
-          isRunning = true;
-          
-          const alarm = document.getElementById("alarmSound");
-          // Correct
+      <button class="time-btn"
