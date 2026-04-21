@@ -32,7 +32,6 @@
       align-items: center;
     }
 
-    /* Start Overlay with 4 Options */
     #start-overlay {
       position: fixed;
       inset: 0;
@@ -158,10 +157,11 @@
   <div id="start-overlay">
     <div class="overlay-title">Select Duration</div>
     <div class="start-options">
+      <button class="time-btn" data-mins="30">30 MIN</button>
       <button class="time-btn" data-mins="20">20 MIN</button>
       <button class="time-btn" data-mins="10">10 MIN</button>
-      <button class="time-btn" data-mins="5">5 MIN</button>
-      <button class="time-btn" data-mins="1">1 MIN</button>
+      <button class="time-btn" data-secs="30">30 SEC</button>
+      <button class="time-btn" data-secs="5">5 SEC</button>
     </div>
   </div>
 
@@ -183,11 +183,15 @@
 
       const overlay = document.getElementById("start-overlay");
       const buttons = document.querySelectorAll(".time-btn");
+      const alarm = document.getElementById("alarmSound");
 
       buttons.forEach(btn => {
         btn.addEventListener("click", () => {
-          const mins = parseInt(btn.getAttribute("data-mins"));
-          durationMs = mins * 60 * 1000;
+          // Changed to parseFloat to support decimals like 0.5
+          const mins = parseFloat(btn.getAttribute("data-mins")) || 0;
+          const secs = parseFloat(btn.getAttribute("data-secs")) || 0;
+          
+          durationMs = (mins * 60 * 1000) + (secs * 1000);
           
           overlay.style.opacity = "0";
           setTimeout(() => overlay.remove(), 500);
@@ -195,9 +199,7 @@
           targetMs = Date.now() + durationMs;
           isRunning = true;
           
-          const alarm = document.getElementById("alarmSound");
-          alarm.play();
-          
+          alarm.load(); 
           tick();
         });
       });
@@ -238,21 +240,22 @@
         if (!isRunning) return;
         let diff = targetMs - Date.now();
         const bg = document.getElementById("bgImage");
-        const alarm = document.getElementById("alarmSound");
 
         if (diff <= 0) {
           diff = 0;
           if (alarm && alarm.paused && !alarm.dataset.played) {
-            alarm.play();
+            alarm.play().catch(e => console.error("Playback error:", e));
             alarm.dataset.played = "true";
           }
         }
 
-        if (diff <= 60000) { 
+        if (diff <= 60000 && diff > 0) { 
           timeEl.style.color = "#b50000";
           if (bg && !bg.src.includes("EvaClockBackground_red.jpg")) {
             bg.src = "Background/EvaClockBackground_red.jpg";
           }
+        } else if (diff <= 0) {
+          timeEl.style.color = "#b50000";
         } else {
           timeEl.style.color = "#ef9409";
           if (bg) bg.src = "Background/EvaClockBackground.jpg";
@@ -275,7 +278,6 @@
         requestAnimationFrame(tick);
       }
 
-      // Show zeroed out clock while selecting
       setTimeStr("00:00:00");
     })();
 
