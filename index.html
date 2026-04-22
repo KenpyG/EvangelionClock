@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Countdown</title>
+  <title>Countdown - Industrial HUD</title>
   <style>
     @font-face {
       font-family: "Digital-7";
@@ -18,10 +18,7 @@
       --hud-left: 51.5%;
     }
 
-    * { 
-      box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0; padding: 0;
@@ -31,7 +28,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      user-select: none; 
+      user-select: none;
       -webkit-user-select: none;
     }
 
@@ -86,24 +83,32 @@
     .slot.last-colon { font-size: 0.8em; width: 0.15em; transform: translateY(0.09em); }
     .slot.ms { font-size: 0.8em; width: 0.45em; transform: translateY(0.09em); }
     
-    /* --- SWIPE UI --- */
+    /* --- SOLID RED RECTANGULAR SWIPE --- */
+    
     #swipe-container {
-      position: fixed; bottom: 6%; left: 50%;
+      position: fixed; 
+      bottom: 10%; 
+      left: 50%;
       transform: translateX(-50%);
-      width: 320px; height: 70px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 35px;
+      width: 320px; 
+      height: 40px; 
+      background: #000;
+      border-radius: 0;
       display: none; align-items: center;
-      padding: 5px; z-index: 200;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
+      padding: 0px; z-index: 200;
+      border: 2px solid #ff0000;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+      overflow: hidden;
     }
 
     #swipe-handle {
-      width: 60px; height: 60px;
-      background: #fff; border-radius: 50%;
+      width: 50px; 
+      height: 100%; 
+      background: #ff0000; /* Solid Red */
+      border-right: 3px solid #000; /* Black Border around button */
+      border-left: 3px solid #000;
+      border-radius: 0;
       display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 0 20px rgba(255,255,255,0.3);
       cursor: grab; position: relative; z-index: 210;
       touch-action: none; 
       -webkit-user-drag: none;
@@ -111,15 +116,33 @@
 
     #swipe-handle:active { cursor: grabbing; }
 
+    /* Flashing Red Text */
     .swipe-text {
       position: absolute; width: 100%; left: 0;
-      text-align: center; color: #fff;
-      font-family: sans-serif; font-size: 0.9rem;
-      letter-spacing: 2px; pointer-events: none;
-      opacity: 0.5; text-transform: uppercase;
+      text-align: center; 
+      color: #ff0000; /* Red Text */
+      font-family: sans-serif; 
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 3px; pointer-events: none;
+      text-transform: uppercase;
+      animation: text-flash 1s infinite;
     }
 
-    .arrow { color: #000; font-weight: bold; font-size: 28px; pointer-events: none; }
+    @keyframes text-flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+      50% { box-shadow: 0 0 16px rgba(255, 0, 0, 0.7); }
+      100% { box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+    }
+
+    #swipe-container {
+      animation: pulse-red 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body>
@@ -137,7 +160,7 @@
 
   <div id="swipe-container">
     <div class="swipe-text">Slide to Restart</div>
-    <div id="swipe-handle"><span class="arrow">›</span></div>
+    <div id="swipe-handle"></div>
   </div>
 
   <audio id="alarmSound" src="Sound/alarm.mp3" preload="auto" loop></audio>
@@ -169,16 +192,13 @@
       grid.appendChild(wrap);
       let slotEls = [];
 
-      // --- TIMER START ---
       buttons.forEach(btn => {
         btn.addEventListener("click", () => {
           const mins = parseFloat(btn.getAttribute("data-mins")) || 0;
           const secs = parseFloat(btn.getAttribute("data-secs")) || 0;
           durationMs = (mins * 60 * 1000) + (secs * 1000);
-          
           overlay.style.opacity = "0";
           setTimeout(() => { overlay.style.display = "none"; }, 500);
-          
           targetMs = Date.now() + durationMs;
           isRunning = true;
           window._flashStarted = false;
@@ -187,9 +207,8 @@
         });
       });
 
-      // --- MOUSE & TOUCH SWIPE ENGINE ---
       let isDragging = false, startX = 0, currentX = 0;
-      const threshold = 245; // Adjust based on container width
+      const threshold = 266; 
 
       const getX = (e) => (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
 
@@ -197,47 +216,39 @@
         isDragging = true;
         startX = getX(e) - currentX;
         swipeHandle.style.transition = "none";
-        // Stop browser selection/dragging
         if (e.cancelable) e.preventDefault();
       };
 
       const moveDrag = (e) => {
         if (!isDragging) return;
-        
         let x = getX(e);
         currentX = x - startX;
-        
         if (currentX < 0) currentX = 0;
         if (currentX > threshold) currentX = threshold;
-        
         swipeHandle.style.transform = `translateX(${currentX}px)`;
-        document.querySelector('.swipe-text').style.opacity = 0.5 - (currentX / threshold * 0.5);
+        // Fade the text out as you slide
+        document.querySelector('.swipe-text').style.opacity = 1 - (currentX / threshold);
       };
 
       const endDrag = () => {
         if (!isDragging) return;
         isDragging = false;
-        
         if (currentX >= threshold) {
           resetTimer();
         } else {
-          // Bouncy snap back curve
-          swipeHandle.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+          swipeHandle.style.transition = "transform 0.3s ease-out";
           swipeHandle.style.transform = `translateX(0px)`;
-          document.querySelector('.swipe-text').style.opacity = 0.5;
+          document.querySelector('.swipe-text').style.opacity = 1;
         }
         currentX = 0;
       };
 
-      // Events
       swipeHandle.addEventListener('mousedown', startDrag);
       swipeHandle.addEventListener('touchstart', startDrag, {passive: false});
       window.addEventListener('mousemove', moveDrag);
       window.addEventListener('touchmove', moveDrag, {passive: false});
       window.addEventListener('mouseup', endDrag);
       window.addEventListener('touchend', endDrag);
-      
-      // Nuclear option for mouse reliability
       window.addEventListener('dragstart', (e) => e.preventDefault());
 
       function resetTimer() {
@@ -246,19 +257,16 @@
         alarm.pause();
         alarm.currentTime = 0;
         delete alarm.dataset.played;
-
         actualTimeEl.style.opacity = "1";
         actualTimeEl.style.color = "#ef9409";
         bg.src = "Background/EvaClockBackground.jpg";
         swipeContainer.style.display = "none";
         swipeHandle.style.transform = `translateX(0px)`;
-        
         overlay.style.display = "flex";
         setTimeout(() => { overlay.style.opacity = "1"; }, 50);
         setTimeStr("00:00:00");
       }
 
-      // --- RENDER FUNCTIONS ---
       function rebuildSlots(str) {
         actualTimeEl.textContent = "";
         slotEls = [];
@@ -284,7 +292,6 @@
       function tick() {
         if (!isRunning) return;
         let diff = targetMs - Date.now();
-
         if (diff <= 0) {
           diff = 0;
           if (alarm && alarm.paused && !alarm.dataset.played) {
@@ -293,7 +300,6 @@
           }
           swipeContainer.style.display = "flex";
         }
-
         if (diff <= 60000 && diff > 0) { 
           actualTimeEl.style.color = "#b50000";
           if (!bg.src.includes("_red")) bg.src = "Background/EvaClockBackground_red.jpg";
@@ -303,10 +309,8 @@
           actualTimeEl.style.color = "#ef9409";
           bg.src = "Background/EvaClockBackground.jpg";
         }
-
         const mm = Math.floor(diff / 60000), ss = Math.floor((diff % 60000) / 1000), ms = Math.floor((diff % 1000) / 10);
         setTimeStr(`${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(ms).padStart(2, "0")}`);
-
         if (diff <= 0) {
           if (!window._flashStarted) {
             startFlashing();
