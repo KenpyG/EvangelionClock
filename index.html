@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Countdown</title>
   <style>
     @font-face {
       font-family: "Digital-7";
       src: url("Fonts/digital-7.ttf") format("truetype");
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+      font-weight: normal; font-style: normal; font-display: swap;
     }
 
     :root {
@@ -20,7 +18,10 @@
       --hud-left: 51.5%;
     }
 
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
 
     html, body {
       margin: 0; padding: 0;
@@ -30,126 +31,95 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      user-select: none; 
+      -webkit-user-select: none;
     }
 
     #start-overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0,0,0,0.9);
       z-index: 100;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
       color: var(--lcd-orange);
       font-family: "Digital-7", sans-serif;
       transition: opacity 0.5s ease;
     }
 
-    .overlay-title {
-      font-size: 3rem;
-      margin-bottom: 2rem;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-    }
+    .overlay-title { font-size: 3rem; margin-bottom: 2rem; letter-spacing: 5px; text-transform: uppercase; }
 
-    .start-options {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .start-options { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 
     .time-btn {
-      background: transparent;
-      border: 2px solid var(--lcd-orange);
-      color: var(--lcd-orange);
-      font-family: "Digital-7", sans-serif;
-      font-size: 2.5rem;
-      padding: 10px 30px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
+      background: transparent; border: 2px solid var(--lcd-orange);
+      color: var(--lcd-orange); font-family: "Digital-7", sans-serif;
+      font-size: 2.5rem; padding: 10px 30px; cursor: pointer;
+      transition: all 0.3s ease; text-transform: uppercase;
     }
 
-    .time-btn:hover {
-      background: var(--lcd-orange);
-      color: #000;
-      box-shadow: 0 0 20px var(--lcd-orange);
-    }
+    .time-btn:hover { background: var(--lcd-orange); color: #000; box-shadow: 0 0 20px var(--lcd-orange); }
 
     .viewport-lock {
-      position: relative;
-      aspect-ratio: 1920 / 1080; 
-      width: 100vw;
-      height: auto;
-      container-type: size;
+      position: relative; aspect-ratio: 1920 / 1080; 
+      width: 100vw; height: auto; container-type: size;
     }
 
-    @media (min-aspect-ratio: 1920/1080) {
-      .viewport-lock {
-        width: auto;
-        height: 100vh;
-      }
-    }
+    @media (min-aspect-ratio: 1920/1080) { .viewport-lock { width: auto; height: 100vh; } }
 
-    .bg-image {
-      width: 100%; height: 100%;
-      display: block;
-    }
+    .bg-image { width: 100%; height: 100%; display: block; pointer-events: none; }
 
     .hud {
-      position: absolute;
-      top: var(--hud-top);
-      left: var(--hud-left);
-      width: 100%;
-      transform: translate(-50%, -50%);
-      text-align: center;
+      position: absolute; top: var(--hud-top); left: var(--hud-left);
+      width: 100%; transform: translate(-50%, -50%); text-align: center;
+      pointer-events: none;
     }
 
     .unit .num {
-      font-family: "Digital-7", monospace;
-      font-size: 18.2cqw; 
-      line-height: 1;
-      color: var(--lcd-orange);
-      font-variant-numeric: tabular-nums;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
+      font-family: "Digital-7", monospace; font-size: 18.2cqw; 
+      line-height: 1; color: var(--lcd-orange);
+      font-variant-numeric: tabular-nums; display: flex;
+      justify-content: center; align-items: center; width: 100%;
     }
 
-    .slot {
-      display: inline-block;
-      width: 0.45em; 
-      text-align: center;
-    }
-
-    .slot.sep { 
-      width: 0.12em;
-      margin-left: -0.02em;
-    }
+    .slot { display: inline-block; width: 0.45em; text-align: center; }
+    .slot.sep { width: 0.12em; margin-left: -0.02em; }
+    .slot.last-colon { font-size: 0.8em; width: 0.15em; transform: translateY(0.09em); }
+    .slot.ms { font-size: 0.8em; width: 0.45em; transform: translateY(0.09em); }
     
-    .slot.last-colon { 
-      font-size: 0.8em; 
-      width: 0.15em; 
-      transform: translateY(0.09em);
+    /* --- SWIPE UI --- */
+    #swipe-container {
+      position: fixed; bottom: 6%; left: 50%;
+      transform: translateX(-50%);
+      width: 320px; height: 70px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 35px;
+      display: none; align-items: center;
+      padding: 5px; z-index: 200;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
     }
 
-    .slot.ms { 
-      font-size: 0.8em; 
-      width: 0.45em; 
-      transform: translateY(0.09em);
+    #swipe-handle {
+      width: 60px; height: 60px;
+      background: #fff; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      cursor: grab; position: relative; z-index: 210;
+      touch-action: none; 
+      -webkit-user-drag: none;
     }
-    
-    .danger-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      pointer-events: none;
-      opacity: 0;
-      z-index: 2;
+
+    #swipe-handle:active { cursor: grabbing; }
+
+    .swipe-text {
+      position: absolute; width: 100%; left: 0;
+      text-align: center; color: #fff;
+      font-family: sans-serif; font-size: 0.9rem;
+      letter-spacing: 2px; pointer-events: none;
+      opacity: 0.5; text-transform: uppercase;
     }
+
+    .arrow { color: #000; font-weight: bold; font-size: 28px; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -165,7 +135,11 @@
     </div>
   </div>
 
-  <div class="danger-overlay"></div>
+  <div id="swipe-container">
+    <div class="swipe-text">Slide to Restart</div>
+    <div id="swipe-handle"><span class="arrow">›</span></div>
+  </div>
+
   <audio id="alarmSound" src="Sound/alarm.mp3" preload="auto" loop></audio>
 
   <div class="viewport-lock">
@@ -177,45 +151,116 @@
 
   <script>
     (function () {
-      let targetMs;
-      let isRunning = false;
-      let durationMs = 0;
+      let targetMs, isRunning = false, durationMs = 0, flashInterval = null;
 
       const overlay = document.getElementById("start-overlay");
       const buttons = document.querySelectorAll(".time-btn");
       const alarm = document.getElementById("alarmSound");
+      const swipeContainer = document.getElementById("swipe-container");
+      const swipeHandle = document.getElementById("swipe-handle");
+      const bg = document.getElementById("bgImage");
 
+      const grid = document.getElementById("grid");
+      const wrap = document.createElement("div");
+      wrap.className = "unit";
+      const actualTimeEl = document.createElement("div");
+      actualTimeEl.className = "num";
+      wrap.appendChild(actualTimeEl);
+      grid.appendChild(wrap);
+      let slotEls = [];
+
+      // --- TIMER START ---
       buttons.forEach(btn => {
         btn.addEventListener("click", () => {
-          // Changed to parseFloat to support decimals like 0.5
           const mins = parseFloat(btn.getAttribute("data-mins")) || 0;
           const secs = parseFloat(btn.getAttribute("data-secs")) || 0;
-          
           durationMs = (mins * 60 * 1000) + (secs * 1000);
           
           overlay.style.opacity = "0";
-          setTimeout(() => overlay.remove(), 500);
+          setTimeout(() => { overlay.style.display = "none"; }, 500);
           
           targetMs = Date.now() + durationMs;
           isRunning = true;
-          
+          window._flashStarted = false;
           alarm.load(); 
           tick();
         });
       });
 
-      const grid = document.getElementById("grid");
-      const wrap = document.createElement("div");
-      wrap.className = "unit";
-      const timeEl = document.createElement("div");
-      timeEl.className = "num";
-      wrap.appendChild(timeEl);
-      grid.appendChild(wrap);
+      // --- MOUSE & TOUCH SWIPE ENGINE ---
+      let isDragging = false, startX = 0, currentX = 0;
+      const threshold = 245; // Adjust based on container width
 
-      let slotEls = [];
+      const getX = (e) => (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
 
+      const startDrag = (e) => {
+        isDragging = true;
+        startX = getX(e) - currentX;
+        swipeHandle.style.transition = "none";
+        // Stop browser selection/dragging
+        if (e.cancelable) e.preventDefault();
+      };
+
+      const moveDrag = (e) => {
+        if (!isDragging) return;
+        
+        let x = getX(e);
+        currentX = x - startX;
+        
+        if (currentX < 0) currentX = 0;
+        if (currentX > threshold) currentX = threshold;
+        
+        swipeHandle.style.transform = `translateX(${currentX}px)`;
+        document.querySelector('.swipe-text').style.opacity = 0.5 - (currentX / threshold * 0.5);
+      };
+
+      const endDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        if (currentX >= threshold) {
+          resetTimer();
+        } else {
+          // Bouncy snap back curve
+          swipeHandle.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+          swipeHandle.style.transform = `translateX(0px)`;
+          document.querySelector('.swipe-text').style.opacity = 0.5;
+        }
+        currentX = 0;
+      };
+
+      // Events
+      swipeHandle.addEventListener('mousedown', startDrag);
+      swipeHandle.addEventListener('touchstart', startDrag, {passive: false});
+      window.addEventListener('mousemove', moveDrag);
+      window.addEventListener('touchmove', moveDrag, {passive: false});
+      window.addEventListener('mouseup', endDrag);
+      window.addEventListener('touchend', endDrag);
+      
+      // Nuclear option for mouse reliability
+      window.addEventListener('dragstart', (e) => e.preventDefault());
+
+      function resetTimer() {
+        isRunning = false;
+        clearInterval(flashInterval);
+        alarm.pause();
+        alarm.currentTime = 0;
+        delete alarm.dataset.played;
+
+        actualTimeEl.style.opacity = "1";
+        actualTimeEl.style.color = "#ef9409";
+        bg.src = "Background/EvaClockBackground.jpg";
+        swipeContainer.style.display = "none";
+        swipeHandle.style.transform = `translateX(0px)`;
+        
+        overlay.style.display = "flex";
+        setTimeout(() => { overlay.style.opacity = "1"; }, 50);
+        setTimeStr("00:00:00");
+      }
+
+      // --- RENDER FUNCTIONS ---
       function rebuildSlots(str) {
-        timeEl.textContent = "";
+        actualTimeEl.textContent = "";
         slotEls = [];
         const lastColonIndex = str.lastIndexOf(":");
         for (let i = 0; i < str.length; i++) {
@@ -224,7 +269,7 @@
           if (str[i] === ":") slot.classList.add("sep");
           if (i === lastColonIndex) slot.classList.add("last-colon");
           if (i > lastColonIndex) slot.classList.add("ms");
-          timeEl.appendChild(slot);
+          actualTimeEl.appendChild(slot);
           slotEls.push(slot);
         }
       }
@@ -239,34 +284,28 @@
       function tick() {
         if (!isRunning) return;
         let diff = targetMs - Date.now();
-        const bg = document.getElementById("bgImage");
 
         if (diff <= 0) {
           diff = 0;
           if (alarm && alarm.paused && !alarm.dataset.played) {
-            alarm.play().catch(e => console.error("Playback error:", e));
+            alarm.play().catch(e => {});
             alarm.dataset.played = "true";
           }
+          swipeContainer.style.display = "flex";
         }
 
         if (diff <= 60000 && diff > 0) { 
-          timeEl.style.color = "#b50000";
-          if (bg && !bg.src.includes("EvaClockBackground_red.jpg")) {
-            bg.src = "Background/EvaClockBackground_red.jpg";
-          }
+          actualTimeEl.style.color = "#b50000";
+          if (!bg.src.includes("_red")) bg.src = "Background/EvaClockBackground_red.jpg";
         } else if (diff <= 0) {
-          timeEl.style.color = "#b50000";
+          actualTimeEl.style.color = "#b50000";
         } else {
-          timeEl.style.color = "#ef9409";
-          if (bg) bg.src = "Background/EvaClockBackground.jpg";
+          actualTimeEl.style.color = "#ef9409";
+          bg.src = "Background/EvaClockBackground.jpg";
         }
 
-        const mm = Math.floor(diff / 60000);
-        const ss = Math.floor((diff % 60000) / 1000);
-        const ms = Math.floor((diff % 1000) / 10);
-        
-        const str = `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
-        setTimeStr(str);
+        const mm = Math.floor(diff / 60000), ss = Math.floor((diff % 60000) / 1000), ms = Math.floor((diff % 1000) / 10);
+        setTimeStr(`${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(ms).padStart(2, "0")}`);
 
         if (diff <= 0) {
           if (!window._flashStarted) {
@@ -278,17 +317,16 @@
         requestAnimationFrame(tick);
       }
 
+      function startFlashing() {
+        let visible = true;
+        flashInterval = setInterval(() => {
+          visible = !visible;
+          actualTimeEl.style.opacity = visible ? "1" : "0.3";
+        }, 500);
+      }
+
       setTimeStr("00:00:00");
     })();
-
-    function startFlashing() {
-      const el = document.querySelector(".unit .num");
-      let visible = true;
-      setInterval(() => {
-        visible = !visible;
-        el.style.opacity = visible ? "1" : "0.3";
-      }, 500);
-    }
   </script>
 </body>
 </html>
